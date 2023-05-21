@@ -47,10 +47,10 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 
+	"go-service/internal/middwares/authorization"
 	"go-service/internal/myprofile"
 	"go-service/internal/user"
 	"go-service/internal/userinfomation"
-	"go-service/internal/middwares/authorization"
 )
 
 type ApplicationContext struct {
@@ -73,15 +73,15 @@ type ApplicationContext struct {
 	Country               *q.QueryHandler
 	Production            *q.QueryHandler
 
-	Follow                follow.FollowHandler
-	SavedItem             save.SaveHandler
-	Comment               commentmux.CommentHandler
-	Reaction              reaction.ReactionHandler
-	Response              response.ResponseHandler
-	SearchResponse        *search.SearchHandler
-	SearchComment         *search.SearchHandler
+	Follow         follow.FollowHandler
+	SavedItem      save.SaveHandler
+	Comment        commentmux.CommentHandler
+	Reaction       reaction.ReactionHandler
+	Response       response.ResponseHandler
+	SearchResponse *search.SearchHandler
+	SearchComment  *search.SearchHandler
 
-	FollowLocation    follow.FollowHandler
+	FollowLocation follow.FollowHandler
 
 	UserReact             userreaction.UserReactionHandler
 	UserInfomation        userinfomation.UserInfomationHandler
@@ -155,7 +155,7 @@ func NewApp(ctx context.Context, conf Config) (*ApplicationContext, error) {
 	passwordResetCode := "passwordcodes"
 	//passwordRepository := pm.NewPasswordRepositoryByConfig(mongoDb, userCollection, authentication, userCollection, "userId", conf.Password.Schema)
 	//passResetCodeRepository := mgo.NewPasscodeRepository(mongoDb, passwordResetCode)
-	passwordRepositorySQL := sqlpm.NewPasswordRepositoryByConfig(db, "users", "passwords", "history", "id", conf.Password.Schema, 5, pq.Array)
+	passwordRepositorySQL := sqlpm.NewPasswordRepositoryByConfig(db, "users", "credentials", "history", "id", conf.Password.Schema, 5, pq.Array)
 	passResetCodeRepositorySQL := s.NewPasscodeService(db, passwordResetCode, "expiredat", "id", "code")
 	p := conf.Password
 	exps := []string{p.Exp1, p.Exp2, p.Exp3, p.Exp4, p.Exp5, p.Exp6}
@@ -165,15 +165,15 @@ func NewApp(ctx context.Context, conf Config) (*ApplicationContext, error) {
 	passwordService := NewPasswordService(bcryptComparator, passwordRepositorySQL, conf.Password.ResetExpires, passResetCodeRepositorySQL, passwordResetSender.Send, tokenBlacklistChecker.RevokeAllTokens, exps, 5, nil, conf.Password.ChangeExpires, passResetCodeRepositorySQL, passwordChangeSender.Send)
 	passwordHandler := NewPasswordHandler(passwordService, log.LogError, nil)
 
-	signUpCode := "signupCodes"
+	signUpCode := "sign_up_codes"
 	signupStatus := InitSignUpStatus(conf.SignUp.Status)
 	emailValidator := NewEmailValidator(true, "")
 	//signUpRepository := sm.NewSignUpRepositoryByConfig(mongoDb, userCollection, authentication, conf.SignUp.UserStatus, conf.MaxPasswordAge, conf.SignUp.Schema, nil)
 	//signUpCodeRepository := mgo.NewPasscodeRepository(mongoDb, signUpCode)
 	//signUpService := NewSignUpService(signupStatus, true, signUpRepository, generateId, bcryptComparator.Hash, bcryptComparator, signUpCodeRepository, signupSender.Send, conf.SignUp.Expires, emailValidator.Validate, exps)
 	//signupHandler := NewSignUpHandler(signUpService, signupStatus.Error, log.LogError, conf.SignUp.Action)
-	signUpRepositorySQL := sqlsm.NewSignUpRepositoryByConfig(db, "users", "passwords", conf.SignUp.UserStatus, conf.MaxPasswordAge, conf.SignUp.Schema, nil)
-	signUpCodeRepositorySQL := s.NewPasscodeService(db, signUpCode, "", "", "code")
+	signUpRepositorySQL := sqlsm.NewSignUpRepositoryByConfig(db, "users", "credentials", conf.SignUp.UserStatus, conf.MaxPasswordAge, conf.SignUp.Schema, nil)
+	signUpCodeRepositorySQL := s.NewPasscodeService(db, signUpCode, "expired_at", "user_id", "code")
 	signUpService := NewSignUpService(signupStatus, true, signUpRepositorySQL, generateId, bcryptComparator.Hash, bcryptComparator, signUpCodeRepositorySQL, signupSender.Send, conf.SignUp.Expires, emailValidator.Validate, exps)
 	signupHandler := NewSignUpHandler(signUpService, signupStatus.Error, log.LogError, conf.SignUp.Action)
 

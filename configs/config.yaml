@@ -21,11 +21,11 @@ redis:
   url: redis://localhost:6379
 
 mail:
-  provider: smtp
+  provider: sendgrid
   from:
     name: Supporter
-    address: supporter@gmail.com
-  api_key:
+    address: follme.noreply@gmail.com
+  api_key: SG.3jjQuCoCTZulRLq7lbF0oQ.o2T3T4e44CdkQ02lyCVlJYyN9j3ye0wTxFyT_pmr8eU
   smtp:
     host: smtp.gmail.com
     port: 587
@@ -104,19 +104,19 @@ authorize:
     activated: A
     deactivated: D
   db:
-    id: id
+    id: user_id
     user: users
-    password: passwords
+    password: credentials
     username: username
     status: status
-    success_time: successTime
-    fail_time: failTime
-    fail_count: failCount
-    locked_until_time: lockedUntilTime
-  query: select u.id, u.username, u.displayname, email, u.status, p.* from users u
-    inner join passwords p
-    on u.id = p.id
-    where username = $1 and u.status = 'A'
+    success_time: success_time
+    fail_time: fail_time
+    fail_count: fail_count
+    locked_until_time: locked_until_time
+  query: select u.user_id, u.username, email, u.status, c.* from users u
+    inner join credentials c
+    on u.user_id = c.user_id
+    where u.username = $1 and u.status = 'A'
 
 #auth_sql:
 #  id: id
@@ -168,22 +168,22 @@ sign_up:
     verifying: V
     activated: A
   schema:
-    user_id: id
-    user_name: userName
+    user_id: user_id
+    user_name: username
     contact: email
     # signed_up_time: signedUpTime
-    language: language
-    max_password_age: maxPasswordAge
-    date_of_birth: dateOfBirth
-    given_name: givenName
-    middle_name: middleName
-    family_name: familyName
-    gender: gender
-    created_time: createdAt
-    created_by: createdBy
-    updated_time: updatedAt
-    updated_by: updatedBy
-    version: version
+    #language: language
+    #max_password_age: maxPasswordAge
+    #date_of_birth: dateOfBirth
+    #given_name: givenName
+    #middle_name: middleName
+    #family_name: familyName
+    #gender: gender
+    created_time: created_at
+    created_by: created_by
+    updated_time: updated_at
+    updated_by: updated_by
+    #version: version
   template:
     subject: Verify your email address
     body: |
@@ -229,8 +229,6 @@ oauth2:
 password:
   exp1: '.{8,}'
   exp2: '([a-z]){1,}'
-  exp3: '([A-Z]){1,}'
-  exp4: '([\d]){1,}'
   change_expires: 420
   reset_expires: 420
   schema:
