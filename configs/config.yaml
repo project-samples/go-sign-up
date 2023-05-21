@@ -13,7 +13,7 @@ mongo:
 sql:
   driver: postgres
   data_source_name: host=drona.db.elephantsql.com port=5432 user=guistwkl dbname=guistwkl sslmode=require password=GvIZ6A41hR_uNtGdAe4pZmc-EXbRqLn2
-#  data_source_name: host=localhost port=5432 user?=postgres dbname=postgres sslmode=disable password=postgres
+  #  data_source_name: host=localhost port=5432 user?=postgres dbname=postgres sslmode=disable password=postgres
   # data_source_name: host=peanut.db.elephantsql.com port=5432 user=yhjnkfrf dbname=yhjnkfrf sslmode=require password=HJ2Z7WiHxBzRKl5e8To_fcIko-i93wda
   # data_source_name: host=ec2-34-199-68-114.compute-1.amazonaws.com port=5432 user=renhnmkhkoqvjr dbname=d1mrc2lb73u081 ssl.rejectUnauthorized=false password=05b33690540167d997be040566dfcbc61a85bcdfad400e69cd76ed81aef7eeeb
 
@@ -21,11 +21,11 @@ redis:
   url: redis://localhost:6379
 
 mail:
-  provider: sendgrid
+  provider: smtp
   from:
     name: Supporter
-    address: follme.noreply@gmail.com
-  api_key: SG.3jjQuCoCTZulRLq7lbF0oQ.o2T3T4e44CdkQ02lyCVlJYyN9j3ye0wTxFyT_pmr8eU
+    address: supporter@gmail.com
+  api_key:
   smtp:
     host: smtp.gmail.com
     port: 587
@@ -155,7 +155,7 @@ google_credentials: '
     "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
     "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/go-firestore-rest-api%40appspot.gserviceaccount.com"
   }'
-  
+
 sign_up:
   expires: 3600
   user_verified:

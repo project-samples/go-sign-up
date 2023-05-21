@@ -8,64 +8,40 @@ import (
 )
 
 type User struct {
-	UserId       string        `json:"id,omitempty" gorm:"column:id;primary_key" bson:"_id,omitempty" dynamodbav:"userId,omitempty" firestore:"userId,omitempty" validate:"required,max=40" match:"equal"`
-	Username     string        `json:"username,omitempty" gorm:"column:username" bson:"username,omitempty" dynamodbav:"username,omitempty" firestore:"username,omitempty" validate:"required,max=100"`
-	Email        string        `json:"email,omitempty" gorm:"column:email" bson:"email,omitempty" dynamodbav:"email,omitempty" firestore:"email,omitempty" validate:"email,max=100"`
-	GivenName    string        `json:"givenname,omitempty" gorm:"column:givenname" bson:"givenname,omitempty" dynamodbav:"givenname,omitempty" firestore:"givenname,omitempty" validate:"givenname,max=100"`
-	FamilyName   string        `json:"familyname,omitempty" gorm:"column:familyname" bson:"familyname,omitempty" dynamodbav:"familyname,omitempty" firestore:"familyname,omitempty" validate:"familyname,max=100"`
-	Phone        *string       `json:"phone,omitempty" gorm:"column:phone" bson:"phone,omitempty" dynamodbav:"phone,omitempty" firestore:"phone,omitempty" validate:"required,phone,max=18"`
-	Occupation   *string       `json:"occupation,omitempty" gorm:"column:occupation" bson:"occupation,omitempty" dynamodbav:"occupation,omitempty" firestore:"occupation,omitempty" `
-	Company      *string       `json:"company,omitempty" gorm:"column:company" bson:"company,omitempty" dynamodbav:"company,omitempty" firestore:"company,omitempty" `
-	Bio          *string       `json:"bio,omitempty" gorm:"column:bio" bson:"bio,omitempty" dynamodbav:"bio,omitempty" firestore:"bio,omitempty"`
-	DateOfBirth  *time.Time    `json:"dateOfBirth,omitempty" gorm:"column:dateofbirth" bson:"dateOfBirth,omitempty" dynamodbav:"dateOfBirth,omitempty" firestore:"dateOfBirth,omitempty"`
-	Interests    []string      `json:"interests,omitempty" gorm:"column:interests" bson:"interests,omitempty" dynamodbav:"interests,omitempty" firestore:"interests,omitempty"`
-	LookingFor   []string      `json:"lookingFor,omitempty" gorm:"column:lookingfor" bson:"lookingFor,omitempty" dynamodbav:"lookingFor,omitempty" firestore:"lookingFor,omitempty"`
-	Skills       []Skills      `json:"skills,omitempty" gorm:"column:skills" bson:"skills,omitempty" dynamodbav:"skills,omitempty" firestore:"skills,omitempty"`
-	Achievements []Achievement `json:"achievements,omitempty" gorm:"column:achievements" bson:"achievements,omitempty" dynamodbav:"achievements,omitempty" firestore:"achievements,omitempty"`
-	Settings     *Settings     `json:"settings,omitempty" gorm:"column:settings" bson:"settings,omitempty" dynamodbav:"settings,omitempty" firestore:"settings,omitempty"`
-	Companies    []Company     `json:"companies,omitempty" gorm:"column:companies" bson:"companies,omitempty" dynamodbav:"companies,omitempty" firestore:"companies,omitempty"`
-	Educations   []Education   `json:"educations,omitempty" gorm:"column:educations" bson:"educations,omitempty" dynamodbav:"educations,omitempty" firestore:"educations,omitempty"`
-	Works        []Works       `json:"works,omitempty" gorm:"column:works" bson:"works,omitempty" dynamodbav:"works,omitempty" firestore:"works,omitempty"`
-	Socials      *Socials      `json:"socials,omitempty" gorm:"column:socials" bson:"socials,omitempty" dynamodbav:"socials,omitempty" firestore:"socials,omitempty"`
-	Gallery      []UploadInfo  `json:"gallery,omitempty" gorm:"column:gallery" bson:"gallery,omitempty" dynamodbav:"gallery,omitempty" firestore:"gallery,omitempty"`
-	ImageURL     *string       `json:"imageURL,omitempty" gorm:"column:imageURL" bson:"imageURL,omitempty" dynamodbav:"imageURL,omitempty" firestore:"imageURL,omitempty"`
-	CoverURL     *string       `json:"coverURL,omitempty" gorm:"column:coverurl"`
-}
-type Education struct {
-	School string `json:"school,omitempty" gorm:"column:school" bson:"school,omitempty" dynamodbav:"school,omitempty" firestore:"school,omitempty" validate:"required"`
-	Degree string `json:"degree,omitempty" gorm:"column:degree" bson:"degree,omitempty" dynamodbav:"degree,omitempty" firestore:"degree,omitempty"`
-	Major  string `json:"major,omitempty" gorm:"column:major" bson:"major,omitempty" dynamodbav:"major,omitempty" firestore:"major,omitempty"`
-	From   string `json:"from,omitempty" gorm:"column:from" bson:"from,omitempty" dynamodbav:"from,omitempty" firestore:"from,omitempty"`
-	To     string `json:"to,omitempty" gorm:"column:to" bson:"to,omitempty" dynamodbav:"to,omitempty" firestore:"to,omitempty"`
-	Title  string `json:"title,omitempty" gorm:"column:title" bson:"title,omitempty" dynamodbav:"title,omitempty" firestore:"title,omitempty"`
+	UserId            string       `json:"user_id,omitempty" gorm:"column:user_id;primary_key" bson:"_id,omitempty" dynamodbav:"userId,omitempty" firestore:"userId,omitempty" validate:"required,max=40" match:"equal"`
+	Username          string       `json:"username,omitempty" gorm:"column:username" bson:"username,omitempty" dynamodbav:"username,omitempty" firestore:"username,omitempty" validate:"required,max=100"`
+	Email             string       `json:"email,omitempty" gorm:"column:email" bson:"email,omitempty" dynamodbav:"email,omitempty" firestore:"email,omitempty" validate:"email,max=100"`
+	GivenName         string       `json:"givenName,omitempty" gorm:"column:given_name" bson:"givenName,omitempty" dynamodbav:"givenName,omitempty" firestore:"givenName,omitempty" validate:"omitempty,max=100"`
+	FamilyName        string       `json:"familyName,omitempty" gorm:"column:family_name" bson:"familyName,omitempty" dynamodbav:"familyName,omitempty" firestore:"familyName,omitempty" validate:"omitempty,max=100"`
+	DisplayName       *string      `json:"displayName,omitempty" gorm:"column:display_name" bson:"displayName,omitempty" dynamodbav:"displayName,omitempty" firestore:"displayName,omitempty" validate:"omitempty,max=100"`
+	Phone             *string      `json:"phone,omitempty" gorm:"column:phone" bson:"phone,omitempty" dynamodbav:"phone,omitempty" firestore:"phone,omitempty" validate:"required,phone,max=18"`
+	Occupation        *string      `json:"occupation,omitempty" gorm:"column:occupation" bson:"occupation,omitempty" dynamodbav:"occupation,omitempty" firestore:"occupation,omitempty" `
+	ContactAddress    *Address     `json:"contactAddress,omitempty" gorm:"column:contact_address" bson:"contactAddress,omitempty" dynamodbav:"contactAddress,omitempty" firestore:"contactAddress,omitempty"`
+	EmployerAddress   *Address     `json:"employerAddress,omitempty" gorm:"column:employer_address" bson:"employerAddress,omitempty" dynamodbav:"employerAddress,omitempty" firestore:"employerAddress,omitempty"`
+	InvestmentPurpose *string      `json:"investmentPurpose,omitempty" gorm:"column:investment_purpose" bson:"investmentPurpose,omitempty" dynamodbav:"investmentPurpose,omitempty" firestore:"investmentPurpose,omitempty"`
+	SourceIncome      *string      `json:"sourceIncome,omitempty" gorm:"column:source_income" bson:"sourceIncome,omitempty" dynamodbav:"sourceIncome,omitempty" firestore:"sourceIncome,omitempty"`
+	CountryIncome     *string      `json:"countryIncome,omitempty" gorm:"column:country_income" bson:"countryIncome,omitempty" dynamodbav:"countryIncome,omitempty" firestore:"countryIncome,omitempty"`
+	AverageIncome     *string      `json:"averageIncome,omitempty" gorm:"column:average_income" bson:"averageIncome,omitempty" dynamodbav:"averageIncome,omitempty" firestore:"averageIncome,omitempty"`
+	BusinessType      *string      `json:"businessType,omitempty" gorm:"column:business_type" bson:"business_type,omitempty" dynamodbav:"business_type,omitempty" firestore:"city,omitempty"`
+	DateOfBirth       *time.Time   `json:"dateOfBirth,omitempty" gorm:"column:date_of_birth" bson:"dateOfBirth,omitempty" dynamodbav:"dateOfBirth,omitempty" firestore:"dateOfBirth,omitempty"`
+	Settings          *Settings    `json:"settings,omitempty" gorm:"column:settings" bson:"settings,omitempty" dynamodbav:"settings,omitempty" firestore:"settings,omitempty"`
+	Educations        *string      `json:"educations,omitempty" gorm:"column:educations" bson:"educations,omitempty" dynamodbav:"educations,omitempty" firestore:"educations,omitempty"`
+	Gallery           []UploadInfo `json:"gallery,omitempty" gorm:"column:gallery" bson:"gallery,omitempty" dynamodbav:"gallery,omitempty" firestore:"gallery,omitempty"`
+	ImageURL          *string      `json:"imageURL,omitempty" gorm:"column:imageURL" bson:"imageURL,omitempty" dynamodbav:"imageURL,omitempty" firestore:"imageURL,omitempty"`
+	CoverURL          *string      `json:"coverURL,omitempty" gorm:"column:coverurl"`
 }
 
-type Company struct {
-	Id          *string `json:"id,omitempty" gorm:"column:id" bson:"id,omitempty" dynamodbav:"id,omitempty" firestore:"id,omitempty" validate:"required"`
-	Name        string  `json:"name,omitempty" gorm:"column:name" bson:"name,omitempty" dynamodbav:"name,omitempty" firestore:"name,omitempty"`
-	Description string  `json:"description,omitempty" gorm:"column:description" bson:"description,omitempty" dynamodbav:"description,omitempty" firestore:"description,omitempty"`
-	Position    string  `json:"position,omitempty" gorm:"column:position" bson:"position,omitempty" dynamodbav:"position,omitempty" firestore:"position,omitempty" validate:"required"`
-	From        string  `json:"from,omitempty" gorm:"column:from" bson:"from,omitempty" dynamodbav:"from,omitempty" firestore:"from,omitempty"`
-	To          string  `json:"to,omitempty" gorm:"column:to" bson:"to,omitempty" dynamodbav:"to,omitempty" firestore:"to,omitempty"`
+type Address struct {
+	AddressNo     string `json:"addressNo,omitempty" gorm:"column:address_no" bson:"addressNo,omitempty" dynamodbav:"addressNo,omitempty" firestore:"addressNo,omitempty"`
+	StreetAddress string `json:"streetAddress,omitempty" gorm:"column:street_address" bson:"streetAddress,omitempty" dynamodbav:"streetAddress,omitempty" firestore:"streetAddress,omitempty"`
+	AddressOption string `json:"addressOption,omitempty" gorm:"column:address_option" bson:"AddressOption,omitempty" dynamodbav:"AddressOption,omitempty" firestore:"AddressOption,omitempty"`
+	ZipCode       string `json:"zipCode,omitempty" gorm:"column:zip_code" bson:"zipCode,omitempty" dynamodbav:"zipCode,omitempty" firestore:"zipCode,omitempty"`
+	SubDistrict   string `json:"subDistrict,omitempty" gorm:"column:sub_district" bson:"subDistrict,omitempty" dynamodbav:"subDistrict,omitempty" firestore:"subDistrict,omitempty"`
+	District      string `json:"district,omitempty" gorm:"column:district" bson:"district,omitempty" dynamodbav:"district,omitempty" firestore:"district,omitempty"`
+	City          string `json:"city,omitempty" gorm:"column:city" bson:"city,omitempty" dynamodbav:"city,omitempty" firestore:"city,omitempty"`
+	Country       string `json:"country,omitempty" gorm:"column:country" bson:"country,omitempty" dynamodbav:"country,omitempty" firestore:"country,omitempty"`
 }
 
-type Works struct {
-	Name        string `json:"name,omitempty" gorm:"column:name" bson:"name,omitempty" dynamodbav:"name,omitempty" firestore:"name,omitempty" validate:"required"`
-	Position    string `json:"position,omitempty" gorm:"column:position" bson:"position,omitempty" dynamodbav:"position,omitempty" firestore:"position,omitempty"`
-	Description string `json:"description,omitempty" gorm:"column:position" bson:"description,omitempty" dynamodbav:"description,omitempty" firestore:"description,omitempty"`
-	From        string `json:"from,omitempty" gorm:"column:position" bson:"from,omitempty" dynamodbav:"from,omitempty" firestore:"from,omitempty"`
-	To          string `json:"to,omitempty" gorm:"column:to" bson:"to,omitempty" dynamodbav:"to,omitempty" firestore:"to,omitempty"`
-}
-type Socials struct {
-	Google    string `json:"google,omitempty" gorm:"column:google" bson:"google,omitempty" dynamodbav:"google,omitempty" firestore:"google,omitempty" validate:"required"`
-	Facebook  string `json:"facebook,omitempty" gorm:"column:facebook" bson:"facebook,omitempty" dynamodbav:"facebook,omitempty" firestore:"facebook,omitempty"`
-	Github    string `json:"github,omitempty" gorm:"column:github" bson:"github,omitempty" dynamodbav:"github,omitempty" firestore:"github,omitempty"`
-	Instagram string `json:"instagram,omitempty" gorm:"column:instagram" bson:"instagram,omitempty" dynamodbav:"instagram,omitempty" firestore:"instagram,omitempty"`
-	Twitter   string `json:"twitter,omitempty" gorm:"column:twitter" bson:"twitter,omitempty" dynamodbav:"twitter,omitempty" firestore:"twitter,omitempty"`
-	Skype     string `json:"skype,omitempty" gorm:"column:skype" bson:"skype,omitempty" dynamodbav:"skype,omitempty" firestore:"skype,omitempty"`
-	Dribble   string `json:"dribble,omitempty" gorm:"column:dribble" bson:"dribble,omitempty" dynamodbav:"dribble,omitempty" firestore:"dribble,omitempty"`
-	Linkedin  string `json:"hirable,omitempty" gorm:"column:hirable" bson:"hirable,omitempty" dynamodbav:"hirable,omitempty" firestore:"hirable,omitempty"`
-}
 type UploadInfo struct {
 	Source     string `json:"source,omitempty" gorm:"column:source" bson:"source,omitempty" dynamodbav:"source,omitempty" firestore:"source,omitempty"`
 	TypeUpload string `json:"type,omitempty" gorm:"column:type" bson:"type,omitempty" dynamodbav:"type,omitempty" firestore:"type,omitempty"`
@@ -87,47 +63,10 @@ func (c *Skills) Scan(value interface{}) error {
 	}
 	return json.Unmarshal(b, &c)
 }
-
-func (c Works) Value() (driver.Value, error) {
+func (c Address) Value() (driver.Value, error) {
 	return json.Marshal(c)
 }
-func (c *Works) Scan(value interface{}) error {
-	b, ok := value.([]byte)
-	if !ok {
-		return errors.New("type assertion to []byte failed")
-	}
-	return json.Unmarshal(b, &c)
-}
-func (c Company) Value() (driver.Value, error) {
-	return json.Marshal(c)
-}
-func (c *Company) Scan(value interface{}) error {
-	b, ok := value.([]byte)
-	if !ok {
-		return errors.New("type assertion to []byte failed")
-	}
-	return json.Unmarshal(b, &c)
-}
-func (c Education) Value() (driver.Value, error) {
-	return json.Marshal(c)
-}
-func (c *Education) Scan(value interface{}) error {
-	b, ok := value.([]byte)
-	if !ok {
-		return errors.New("type assertion to []byte failed")
-	}
-	return json.Unmarshal(b, &c)
-}
-
-type Achievement struct {
-	Subject     string `json:"subject,omitempty" gorm:"column:subject" bson:"subject,omitempty" dynamodbav:"subject,omitempty" firestore:"subject,omitempty" validate:"required"`
-	Description string `json:"description,omitempty" gorm:"column:description" bson:"description,omitempty" dynamodbav:"description,omitempty" firestore:"description,omitempty" validate:"required"`
-}
-
-func (c Achievement) Value() (driver.Value, error) {
-	return json.Marshal(c)
-}
-func (c *Achievement) Scan(value interface{}) error {
+func (c *Address) Scan(value interface{}) error {
 	b, ok := value.([]byte)
 	if !ok {
 		return errors.New("type assertion to []byte failed")

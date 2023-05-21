@@ -72,40 +72,6 @@ func (h *myProfileHandler) SaveMyProfile(w http.ResponseWriter, r *http.Request)
 	if er1 == nil {
 		errors, er2 := h.Validate(r.Context(), &user)
 		if !sv.HasError(w, r, errors, er2, *h.Status.ValidationError, h.LogError, nil) {
-			if h.SaveSkills != nil && len(user.Skills) > 0 {
-				skills := make([]string, 0)
-				for _, s := range user.Skills {
-					skills = append(skills, s.Skill)
-				}
-				h.SaveSkills(r.Context(), skills)
-			}
-			if h.SaveCompanies != nil && len(user.Companies) > 0 {
-				company := make([]string, 0)
-				for _, s := range user.Companies {
-					company = append(company, s.Name)
-				}
-				h.SaveCompanies(r.Context(), company)
-			}
-			if h.SaveEducations != nil && len(user.Educations) > 0 {
-				education := make([]string, 0)
-				for _, s := range user.Educations {
-					education = append(education, s.School)
-				}
-				h.SaveEducations(r.Context(), education)
-			}
-			if h.SaveWorks != nil && len(user.Works) > 0 {
-				work := make([]string, 0)
-				for _, s := range user.Works {
-					work = append(work, s.Position)
-				}
-				h.SaveWorks(r.Context(), work)
-			}
-			if h.SaveInterests != nil && len(user.Interests) > 0 {
-				h.SaveInterests(r.Context(), user.Interests)
-			}
-			if h.SaveLookingFor != nil && len(user.LookingFor) > 0 {
-				h.SaveLookingFor(r.Context(), user.LookingFor)
-			}
 			res, er3 := h.service.SaveMyProfile(r.Context(), json)
 			sv.HandleResult(w, r, json, res, er3, h.Status, h.LogError, nil)
 		}
