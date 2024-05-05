@@ -9,14 +9,12 @@ import (
 	sqlauth "github.com/core-go/auth/sql"
 	"github.com/core-go/core/shortid"
 	. "github.com/core-go/health"
-	"github.com/core-go/log"
+	"github.com/core-go/log/zap"
 	. "github.com/core-go/mail"
 	. "github.com/core-go/mail/sendgrid"
 	. "github.com/core-go/mail/smtp"
-	mgo "github.com/core-go/mongo"
 	. "github.com/core-go/password"
 	sqlpm "github.com/core-go/password/sql"
-
 	"github.com/core-go/reaction"
 	"github.com/core-go/reaction/comment"
 	commentmux "github.com/core-go/reaction/comment/mux"
@@ -27,8 +25,7 @@ import (
 	"github.com/core-go/reaction/response"
 	"github.com/core-go/reaction/save"
 	userreaction "github.com/core-go/reaction/user-reaction"
-
-	"github.com/core-go/redis"
+	redis "github.com/core-go/redis/v8"
 	"github.com/core-go/search"
 	"github.com/core-go/search/convert"
 	. "github.com/core-go/security/crypto"
@@ -37,15 +34,15 @@ import (
 	. "github.com/core-go/signup/mail"
 	sqlsm "github.com/core-go/signup/sql"
 	s "github.com/core-go/sql"
+	"github.com/core-go/sql/passcode"
 	q "github.com/core-go/sql/query"
 	"github.com/core-go/sql/template"
+	"github.com/core-go/sql/template/xml"
 	"github.com/core-go/storage"
 	"github.com/core-go/storage/google"
 	"github.com/core-go/storage/upload"
 	"github.com/lib/pq"
 	_ "github.com/lib/pq"
-	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
 
 	"go-service/internal/middwares/authorization"
 	"go-service/internal/myprofile"
@@ -93,11 +90,6 @@ type ApplicationContext struct {
 }
 
 func NewApp(ctx context.Context, conf Config) (*ApplicationContext, error) {
-	client, err := mongo.Connect(ctx, options.Client().ApplyURI(conf.Mongo.Uri))
-	if err != nil {
-		return nil, err
-	}
-	mongoDb := client.Database(conf.Mongo.Database)
 	db, err := s.OpenByConfig(conf.Sql)
 	if err != nil {
 		return nil, err
@@ -112,7 +104,7 @@ func NewApp(ctx context.Context, conf Config) (*ApplicationContext, error) {
 	cloudService, _ := CreateCloudService(ctx, conf)
 
 	buildParam := q.GetBuild(db)
-	templates, err := template.LoadTemplates(template.Trim, "configs/query.xml")
+	templates, err := template.LoadTemplates(xml.Trim, "configs/query.xml")
 	if err != nil {
 		return nil, err
 	}
@@ -123,7 +115,7 @@ func NewApp(ctx context.Context, conf Config) (*ApplicationContext, error) {
 	//userCollection := "user"
 	//authentication := "authentication"
 
-	redisService, err := redis.NewRedisServiceByConfig(conf.Redis)
+	redisService, err := redis.NewRedisAdapterByConfig(conf.Redis)
 	if err != nil {
 		return nil, err
 	}
@@ -149,14 +141,14 @@ func NewApp(ctx context.Context, conf Config) (*ApplicationContext, error) {
 	//signOutHandler := authhandler.NewSignOutHandler(tokenService.VerifyToken, conf.Token.Secret, tokenBlacklistChecker.Revoke, logError)
 	authenticator := NewAuthenticator(authStatus, userInfoService, bcryptComparator, tokenService.GenerateToken, conf.Authorize.Token, conf.Authorize.Payload)
 	authenticationHandler := authhandler.NewAuthenticationHandler(authenticator.Authenticate, authStatus.Error, authStatus.Timeout, logError)
-	signOutHandler := authhandler.NewSignOutHandler(tokenService.VerifyToken, conf.Authorize.Token.Secret, tokenBlacklistChecker.Revoke, log.ErrorMsg)
+	signOutHandler := authhandler.NewSignOutHandler(tokenService.VerifyToken, conf.Authorize.Token.Secret, tokenBlacklistChecker.Revoke, logError)
 	authorizationCheckerHandler := authorization.NewDefaultAuthorizationChecker(tokenService.GetAndVerifyToken, conf.Authorize.Token.Secret, conf.Authorize.Payload.Id, "author", "userId", "userCtx")
 
 	passwordResetCode := "passwordcodes"
 	//passwordRepository := pm.NewPasswordRepositoryByConfig(mongoDb, userCollection, authentication, userCollection, "userId", conf.Password.Schema)
 	//passResetCodeRepository := mgo.NewPasscodeRepository(mongoDb, passwordResetCode)
 	passwordRepositorySQL := sqlpm.NewPasswordRepositoryByConfig(db, "users", "credentials", "history", "id", conf.Password.Schema, 5, pq.Array)
-	passResetCodeRepositorySQL := s.NewPasscodeService(db, passwordResetCode, "expiredat", "id", "code")
+	passResetCodeRepositorySQL := passcode.NewPasscodeRepository(db, passwordResetCode, "expiredat", "id", "code")
 	p := conf.Password
 	exps := []string{p.Exp1, p.Exp2, p.Exp3, p.Exp4, p.Exp5, p.Exp6}
 	signupSender := NewVerifiedEmailSender(mailService, *conf.SignUp.UserVerified, conf.Mail.From, NewTemplateLoaderByConfig(*conf.SignUp.Template))
@@ -173,7 +165,7 @@ func NewApp(ctx context.Context, conf Config) (*ApplicationContext, error) {
 	//signUpService := NewSignUpService(signupStatus, true, signUpRepository, generateId, bcryptComparator.Hash, bcryptComparator, signUpCodeRepository, signupSender.Send, conf.SignUp.Expires, emailValidator.Validate, exps)
 	//signupHandler := NewSignUpHandler(signUpService, signupStatus.Error, log.LogError, conf.SignUp.Action)
 	signUpRepositorySQL := sqlsm.NewSignUpRepositoryByConfig(db, "users", "credentials", conf.SignUp.UserStatus, conf.MaxPasswordAge, conf.SignUp.Schema, nil)
-	signUpCodeRepositorySQL := s.NewPasscodeService(db, signUpCode, "expired_at", "user_id", "code")
+	signUpCodeRepositorySQL := passcode.NewPasscodeRepository(db, signUpCode, "expired_at", "user_id", "code")
 	signUpService := NewSignUpService(signupStatus, true, signUpRepositorySQL, generateId, bcryptComparator.Hash, bcryptComparator, signUpCodeRepositorySQL, signupSender.Send, conf.SignUp.Expires, emailValidator.Validate, exps)
 	signupHandler := NewSignUpHandler(signUpService, signupStatus.Error, log.LogError, conf.SignUp.Action)
 
@@ -200,12 +192,10 @@ func NewApp(ctx context.Context, conf Config) (*ApplicationContext, error) {
 	//oauth2Service := NewOAuth2Service(status, oauth2UserRepositories, userRepositories, configurationRepository, generateId, tokenService, conf.Token, nil)
 	//oauth2Handler := NewDefaultOAuth2Handler(oauth2Service, status.Error, log.LogError)
 
-	mongoHealthChecker := mgo.NewHealthChecker(mongoDb)
-	redisHealthChecker := redis.NewHealthChecker(redisService.Pool)
+	redisHealthChecker := redis.NewHealthChecker(redisService.Client)
 
-	// user
 	userType := reflect.TypeOf(user.User{})
-	userQuery, err := template.UseQueryWithArray(conf.Template, nil, "users", templates, &userType, convert.ToMap, buildParam, pq.Array)
+	userQuery, err := template.GetQueryWithArray(conf.Template, nil, "users", templates, &userType, convert.ToMap, buildParam, s.GetSort, pq.Array)
 	if err != nil {
 		return nil, err
 	}
@@ -235,7 +225,7 @@ func NewApp(ctx context.Context, conf Config) (*ApplicationContext, error) {
 	// search user rate
 	userRateType := reflect.TypeOf(rate.Rate{})
 	userRateFilterType := reflect.TypeOf(searchrate.RateFilter{})
-	searchUserRateQuery, err := template.UseQueryWithArray(conf.Template, nil, "userrate", templates, &userRateType, convert.ToMap, buildParam)
+	searchUserRateQuery, err := template.GetQueryWithArray(conf.Template, nil, "userrate", templates, &userRateType, convert.ToMap, buildParam, s.GetSort, pq.Array)
 	if err != nil {
 		return nil, err
 	}
@@ -251,7 +241,7 @@ func NewApp(ctx context.Context, conf Config) (*ApplicationContext, error) {
 	// search user rate comment
 	searchUserRateCommentType := reflect.TypeOf(searchcomment.Comment{})
 	searchUserRateCommentFilterType := reflect.TypeOf(searchcomment.CommentFilter{})
-	searchUserRateCommentQuery, err := template.UseQueryWithArray(conf.Template, nil, "userratecomment", templates, &searchUserRateCommentType, convert.ToMap, buildParam)
+	searchUserRateCommentQuery, err := template.GetQueryWithArray(conf.Template, nil, "userratecomment", templates, &searchUserRateCommentType, convert.ToMap, buildParam, s.GetSort, pq.Array)
 	if err != nil {
 		return nil, err
 	}
@@ -291,9 +281,12 @@ func NewApp(ctx context.Context, conf Config) (*ApplicationContext, error) {
 	uploadService := upload.NewUploadService(uploadProfileRepository, cloudService, conf.Provider, conf.GeneralDirectory,
 		conf.KeyFile, conf.Storage.Directory, []int{}, []int{})
 	myProfileService := myprofile.NewUserService(myProfileRepository)
-	myProfileHandler := myprofile.NewMyProfileHandler(myProfileService, log.LogError, nil, skillService.Save, interestService.Save, lookingForService.Save,
+	myProfileHandler, err := myprofile.NewMyProfileHandler(myProfileService, log.LogError, nil, skillService.Save, interestService.Save, lookingForService.Save,
 		educationService.Save, companiesService.Save, workService.Save, uploadService, conf.KeyFile, generateId)
 	// user info
+	if err != nil {
+		return nil, err
+	}
 
 	// Follow
 	followService := follow.NewFollowService(
@@ -322,9 +315,10 @@ func NewApp(ctx context.Context, conf Config) (*ApplicationContext, error) {
 	// }
 	userInfomationHandler := userinfomation.NewUserInfomationHandler(userInfomationService, log.LogError, nil)
 
+	sqlHealthCheck := s.NewHealthChecker(db)
 	healthHandler := NewHandler(
 		redisHealthChecker,
-		mongoHealthChecker,
+		sqlHealthCheck,
 	)
 	if err != nil {
 		return nil, err

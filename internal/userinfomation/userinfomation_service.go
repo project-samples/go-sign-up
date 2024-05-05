@@ -20,7 +20,7 @@ type userInfomationService struct {
 
 func (s *userInfomationService) Load(ctx context.Context, id string) (*UserInfomation, error) {
 	var userinfomation UserInfomation
-	ok, err := s.repository.LoadAndDecode(ctx, id, &userinfomation)
+	ok, err := s.repository.Get(ctx, id, &userinfomation)
 	if !ok {
 		return &userinfomation, err
 	}

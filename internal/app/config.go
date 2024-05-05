@@ -8,10 +8,9 @@ import (
 	sqlauth "github.com/core-go/auth/sql"
 	"github.com/core-go/core/builder"
 	. "github.com/core-go/mail/smtp"
-	"github.com/core-go/mongo"
 	//. "github.com/core-go/oauth2"
 	. "github.com/core-go/password/mail"
-	"github.com/core-go/redis"
+	redis "github.com/core-go/redis/v8"
 	. "github.com/core-go/signup/mail"
 	"github.com/core-go/sql"
 	"github.com/core-go/storage"
@@ -19,8 +18,6 @@ import (
 
 type Config struct {
 	Server ServerConfig      `mapstructure:"server"`
-	Mongo  mongo.MongoConfig `mapstructure:"mongo"`
-	// Location mongo.MongoConfig `mapstructure:"location"`
 	Sql   sql.Config   `mapstructure:"sql"`
 	Redis redis.Config `mapstructure:"redis"`
 
